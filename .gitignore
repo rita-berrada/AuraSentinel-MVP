@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environnements
+.env
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Fichiers lourds
+*.mp4
+*.wav
+*.mov
+*.m4a
+
+# Système
+.DS_Store
