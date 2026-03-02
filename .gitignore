@@ -11,11 +11,16 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 
-# Fichiers lourds
+# Large media files
 *.mp4
 *.wav
 *.mov
 *.m4a
+
+# Model weights (download separately)
+*.pt
+*.pth
+*.onnx
 
 # Système
 .DS_Store
