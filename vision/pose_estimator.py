@@ -2,10 +2,13 @@ import numpy as np
 
 try:
     import mediapipe as mp
+    # mp.solutions was removed in mediapipe 0.10.20+
+    if not hasattr(mp, "solutions"):
+        raise AttributeError
     MEDIAPIPE_AVAILABLE = True
-except ImportError:
+except (ImportError, AttributeError):
     MEDIAPIPE_AVAILABLE = False
-    print("Warning: mediapipe not installed. Pose estimation disabled.")
+    print("Warning: mediapipe pose API unavailable. Falling back to baseline tension score.")
 
 
 class PoseEstimator:
