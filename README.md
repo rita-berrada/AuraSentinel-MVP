@@ -9,43 +9,27 @@ AuraSentinel detects early signs of aggression, medical distress, and suspicious
 ## Architecture
 
 ```mermaid
-flowchart TD
-    CAM["📷 Camera + Mic"]
+graph LR
+    R[AuraSentinel-MVP]
+    R --> V[vision/]
+    R --> A[audio/]
+    R --> F[federated/]
+    R --> D[dashboard/]
+    R --> M[main.py]
 
-    subgraph EDGE["Edge Device (Jetson Nano)"]
-        subgraph VIS["vision/"]
-            V1["tracker.py\nYOLOv8 tracking"]
-            V2["pose_estimator.py\nMediaPipe skeleton"]
-            V3["tension_scorer.py\nArm raise · movement · lean"]
-        end
-        subgraph AUD["audio/"]
-            A1["anonymizer.py\nPitch + formant shift"]
-            A2["analyzer.py\nEnergy · pitch · spectral flux"]
-        end
-        SCORE["Tension Score 0–1"]
-        THRESH{"Score ≥ 0.65?"}
-    end
+    V --> V1[tracker.py]
+    V --> V2[pose_estimator.py]
+    V --> V3[tension_scorer.py]
 
-    ALERT["📱 Staff PDA Alert\ndashboard/app.py"]
-    FB["Staff Feedback\nAccurate / False alarm"]
+    A --> A1[anonymizer.py]
+    A --> A2[analyzer.py]
 
-    subgraph FL["Federated Learning Loop"]
-        CLIENT["federated/client.py\nLocal training — no raw data sent"]
-        SERVER["federated/server.py\nFedAvg aggregation"]
-        MODEL["Global Model updated"]
-    end
+    F --> F1[model.py]
+    F --> F2[client.py]
+    F --> F3[server.py]
+    F --> F4[simulate.py]
 
-    CAM --> V1 & A1
-    V1 --> V2 --> V3 --> SCORE
-    A1 --> A2 --> SCORE
-    SCORE --> THRESH
-    THRESH -- YES --> ALERT
-    THRESH -- NO --> EDGE
-    ALERT --> FB
-    FB --> CLIENT
-    CLIENT -- "weight updates only" --> SERVER
-    SERVER --> MODEL
-    MODEL -- "improved model" --> EDGE
+    D --> D1[app.py]
 ```
 
 ---
