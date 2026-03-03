@@ -15,8 +15,8 @@ def _generate_store_data(store_id: int, n_samples: int = 120):
     Label:    1 = genuine tension (alert was accurate)
               0 = false alarm (staff dismissed the alert)
 
-    Each store uses a different random seed and noise level to simulate
-    the variability across real-world environments (lighting, crowd, layout).
+    Each store uses a different seed and noise level to simulate
+    variability across real-world environments (lighting, crowd, layout).
     """
     rng = np.random.RandomState(store_id * 7)
     X = rng.rand(n_samples, 3).astype(np.float32)
@@ -35,14 +35,13 @@ class StoreClient(fl.client.NumPyClient):
     """
     Flower FL client representing a single retail store.
 
-    Behaviour per training round:
-      1. Receive the current global model weights from the server.
-      2. Fine-tune locally on this store's feedback data.
-      3. Return updated weights to the server.
+    Each training round:
+      1. Receives the current global model weights from the server.
+      2. Fine-tunes locally on this store's staff feedback data.
+      3. Returns updated weights and sample count to the server.
 
-    Privacy guarantee: only weight arrays (gradients) are sent to the server.
-    Raw feedback data — staff responses, audio features, pose data — never
-    leaves the local edge device.
+    Privacy guarantee: only weight arrays are returned.
+    Raw feedback data never leaves the local edge device.
     """
 
     def __init__(self, store_id: int):

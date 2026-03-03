@@ -1,33 +1,35 @@
-import flwr as fl
-
+import numpy as np
 from federated.model import TensionClassifier
 
 
-def _get_initial_parameters() -> fl.common.Parameters:
-    """Return initial global model weights before any training begins."""
-    model = TensionClassifier()
-    return fl.common.ndarrays_to_parameters(model.get_parameters())
-
-
-def build_strategy(num_stores: int = 3) -> fl.server.strategy.FedAvg:
+def fed_avg(
+    updates: list[tuple[list[np.ndarray], int]]
+) -> list[np.ndarray]:
     """
-    Build the FedAvg aggregation strategy for the global model.
+    Federated Averaging (FedAvg) aggregation.
 
-    FedAvg (Federated Averaging):
-      Each round, all store clients train locally and return weight updates.
-      The server computes a weighted average of those updates — weighted by
-      each store's number of training samples — to update the global model.
+    Computes a weighted average of client weight updates,
+    weighted by each client's number of training samples.
 
-    No raw data leaves any store. Only weight arrays are aggregated.
+    No raw data is involved — only the weight arrays sent by each store.
 
     Args:
-        num_stores: Number of store clients participating in training.
+        updates: List of (parameters, n_samples) from each store client.
+
+    Returns:
+        Aggregated global model parameters.
     """
-    return fl.server.strategy.FedAvg(
-        fraction_fit=1.0,
-        fraction_evaluate=1.0,
-        min_fit_clients=num_stores,
-        min_evaluate_clients=num_stores,
-        min_available_clients=num_stores,
-        initial_parameters=_get_initial_parameters(),
-    )
+    total_samples = sum(n for _, n in updates)
+    n_params = len(updates[0][0])
+
+    aggregated = []
+    for i in range(n_params):
+        weighted = sum(params[i] * (n / total_samples) for params, n in updates)
+        aggregated.append(weighted)
+
+    return aggregated
+
+
+def get_initial_parameters() -> list[np.ndarray]:
+    """Return initial global model weights before any training."""
+    return TensionClassifier().get_parameters()
