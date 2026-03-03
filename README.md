@@ -8,38 +8,44 @@ AuraSentinel detects early signs of aggression, medical distress, and suspicious
 
 ## Architecture
 
-```
-Camera + Mic
-     │
-     ▼
-┌─────────────────────────────────────────┐
-│           Edge Device (Jetson Nano)     │
-│                                         │
-│  ┌──────────────┐  ┌─────────────────┐  │
-│  │ vision/      │  │ audio/          │  │
-│  │  tracker.py  │  │  anonymizer.py  │  │
-│  │  pose_est.py │  │  analyzer.py    │  │
-│  │  tension_    │  │                 │  │
-│  │  scorer.py   │  │                 │  │
-│  └──────┬───────┘  └────────┬────────┘  │
-│         │                   │           │
-│         └─────────┬─────────┘           │
-│                   ▼                     │
-│           Tension Score [0–1]           │
-│                   │                     │
-│           Score ≥ 0.65?                 │
-│                   │ YES                 │
-│                   ▼                     │
-│           Alert → Staff PDA             │
-└───────────────────┬─────────────────────┘
-                    │ Staff feedback (accurate / false alarm)
-                    ▼
-┌─────────────────────────────────────────┐
-│        Federated Learning Loop          │
-│  federated/client.py  ──►  server.py   │
-│  (local training)    FedAvg (central)   │
-│  Only weight updates transmitted        │
-└─────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    CAM["📷 Camera + Mic"]
+
+    subgraph EDGE["Edge Device (Jetson Nano)"]
+        subgraph VIS["vision/"]
+            V1["tracker.py\nYOLOv8 tracking"]
+            V2["pose_estimator.py\nMediaPipe skeleton"]
+            V3["tension_scorer.py\nArm raise · movement · lean"]
+        end
+        subgraph AUD["audio/"]
+            A1["anonymizer.py\nPitch + formant shift"]
+            A2["analyzer.py\nEnergy · pitch · spectral flux"]
+        end
+        SCORE["Tension Score 0–1"]
+        THRESH{"Score ≥ 0.65?"}
+    end
+
+    ALERT["📱 Staff PDA Alert\ndashboard/app.py"]
+    FB["Staff Feedback\nAccurate / False alarm"]
+
+    subgraph FL["Federated Learning Loop"]
+        CLIENT["federated/client.py\nLocal training — no raw data sent"]
+        SERVER["federated/server.py\nFedAvg aggregation"]
+        MODEL["Global Model updated"]
+    end
+
+    CAM --> V1 & A1
+    V1 --> V2 --> V3 --> SCORE
+    A1 --> A2 --> SCORE
+    SCORE --> THRESH
+    THRESH -- YES --> ALERT
+    THRESH -- NO --> EDGE
+    ALERT --> FB
+    FB --> CLIENT
+    CLIENT -- "weight updates only" --> SERVER
+    SERVER --> MODEL
+    MODEL -- "improved model" --> EDGE
 ```
 
 ---
