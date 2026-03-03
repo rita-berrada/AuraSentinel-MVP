@@ -10,11 +10,26 @@ AuraSentinel detects early signs of aggression, medical distress, and suspicious
 
 ```mermaid
 graph LR
-    R[AuraSentinel-MVP] --> V[vision/]
+    R[AuraSentinel-MVP]
+    R --> V[vision/]
     R --> A[audio/]
     R --> F[federated/]
-    R --> D[dashboard/app.py]
+    R --> D[dashboard/]
     R --> M[main.py]
+
+    V --> V1[tracker.py]
+    V --> V2[pose_estimator.py]
+    V --> V3[tension_scorer.py]
+
+    A --> A1[anonymizer.py]
+    A --> A2[analyzer.py]
+
+    F --> F1[model.py]
+    F --> F2[client.py]
+    F --> F3[server.py]
+    F --> F4[simulate.py]
+
+    D --> D1[app.py]
 ```
 
 ---
