@@ -17,6 +17,9 @@ env/
 *.mov
 *.m4a
 
+# Keep sample test video
+!data/shop_robbery.mp4
+
 # Model weights (download separately)
 *.pt
 *.pth
