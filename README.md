@@ -1,10 +1,14 @@
-# AuraSentinel MVP
+# FL-AuraSentinel
 
 > AI-powered real-time tension detection for retail environments — privacy-first, edge-processed, continuously improving.
 
 AuraSentinel detects early signs of aggression, medical distress, and suspicious behaviour in stores by combining body movement analysis and audio cues. Staff receive discreet alerts on a mobile app and provide feedback that improves the system via federated learning — without any raw data ever leaving the store.
 
 ---
+
+## System Overview
+
+![System architecture](assets/architecture.png)
 
 ## Architecture
 
