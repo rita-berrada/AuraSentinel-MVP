@@ -53,7 +53,9 @@ class VideoTracker:
                     if tension_scorer is not None:
                         crop = frame[max(0, y1):y2, max(0, x1):x2]
                         if crop.size > 0:
-                            tension_scores[person_id] = tension_scorer.score(crop, person_id)
+                            tension_scores[person_id] = tension_scorer.score(
+                                crop, person_id, box=(x1, y1, x2, y2)
+                            )
 
                     tension = tension_scores[person_id]
                     color = (0, 255, 0) if tension < 0.6 else (0, 0, 255)
